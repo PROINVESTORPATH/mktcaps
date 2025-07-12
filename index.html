@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Performance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 500px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .market-cap {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 80px;
+        }
+
+        .bar {
+            width: 60px;
+            border-radius: 30px 30px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            transform-origin: bottom;
+            animation: growUp 3s ease-out forwards;
+        }
+
+        @keyframes growUp {
+            from {
+                height: 0;
+                transform: scaleY(0);
+            }
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        .bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border-radius: 30px 30px 0 0;
+        }
+
+        .logo {
+            width: 35px;
+            height: 35px;
+            z-index: 2;
+            position: relative;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .asset-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .price {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        /* Brand Colors */
+        .gold { background: linear-gradient(135deg, #ffd700, #ffed4e); }
+        .nvidia { background: linear-gradient(135deg, #76b900, #4a9900); }
+        .microsoft { background: linear-gradient(135deg, #00a1f1, #0078d4); }
+        .apple { background: linear-gradient(135deg, #a8a8a8, #666666); }
+        .amazon { background: linear-gradient(135deg, #ff9900, #e68900); }
+        .bitcoin { background: linear-gradient(135deg, #f7931a, #e6820a); }
+        .silver { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); }
+
+        /* Bar Heights */
+        .bar-1 { height: 400px; animation-delay: 0.2s; }
+        .bar-2 { height: 350px; animation-delay: 0.4s; }
+        .bar-3 { height: 320px; animation-delay: 0.6s; }
+        .bar-4 { height: 280px; animation-delay: 0.8s; }
+        .bar-5 { height: 240px; animation-delay: 1.0s; }
+        .bar-6 { height: 200px; animation-delay: 1.2s; }
+        .bar-7 { height: 160px; animation-delay: 1.4s; }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                flex-wrap: wrap;
+                height: auto;
+                gap: 20px;
+            }
+
+            .bar {
+                width: 50px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Asset Performance Dashboard</h1>
+            <p>Top Assets by Market Cap</p>
+        </div>
+
+        <div class="chart-container">
+            <div class="bar-wrapper">
+                <div class="market-cap">$22.632T</div>
+                <div class="bar bar-1 gold">
+                    <div class="logo">🥇</div>
+                </div>
+                <div class="asset-name">Gold</div>
+                <div class="price">$3,370</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="market-cap">$4.022T</div>
+                <div class="bar bar-2 nvidia">
+                    <div class="logo" style="background: #76b900; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; font-size: 12px;">N</div>
+                </div>
+                <div class="asset-name">NVIDIA</div>
+                <div class="price">$164.92</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="market-cap">$3.740T</div>
+                <div class="bar bar-3 microsoft">
+                    <div class="logo" style="background: linear-gradient(45deg, #f25022, #7fba00, #00a4ef, #ffb900); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 20px; height: 20px; background: white; clip-path: polygon(0 0, 45% 0, 45% 45%, 0 45%); position: absolute; top: 7px; left: 7px;"></div>
+                    </div>
+                </div>
+                <div class="asset-name">Microsoft</div>
+                <div class="price">$503.32</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="market-cap">$3.153T</div>
+                <div class="bar bar-4 apple">
+                    <div class="logo">🍎</div>
+                </div>
+                <div class="asset-name">Apple</div>
+                <div class="price">$211.16</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="market-cap">$2.388T</div>
+                <div class="bar bar-5 amazon">
+                    <div class="logo" style="background: #ff9900; color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; font-size: 14px;">a</div>
+                </div>
+                <div class="asset-name">Amazon</div>
+                <div class="price">$225.02</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="market-cap">$2.347T</div>
+                <div class="bar bar-6 bitcoin">
+                    <div class="logo">₿</div>
+                </div>
+                <div class="asset-name">Bitcoin</div>
+                <div class="price">$118,024</div>
+            </div>
+
+            <div class="bar-wrapper">
+                <div class="market-cap">$2.199T</div>
+                <div class="bar bar-7 silver">
+                    <div class="logo">🥈</div>
+                </div>
+                <div class="asset-name">Silver</div>
+                <div class="price">$39.08</div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">7</div>
+                <div class="stat-label">Total Assets</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">$40.88T</div>
+                <div class="stat-label">Combined Market Cap</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">$22.63T</div>
+                <div class="stat-label">Top Asset (Gold)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">+2.4%</div>
+                <div class="stat-label">Avg Growth</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
